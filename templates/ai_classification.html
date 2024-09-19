@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nerve Detector</title>
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <style>
+        /* Integrated styles from style.css and inline styles */
+
+        /* General Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: white;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 70px;
+            color: #155581;
+        }
+
+        /* Header Styles */
+        header {
+            height: 10vh;
+            border-bottom: 1px solid #eee;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .headline {
+            text-align: center;
+            flex-grow: 1;
+            margin: 0;
+        }
+
+        .logo {
+            height: 90%;
+            width: 10%;
+            object-fit: contain;
+        }
+
+        .left-logo {
+            margin-left: 10px;
+            height: 100%;
+        }
+
+        .right-logo {
+            margin-right: 10px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button-section {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Button Styles */
+        .button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px 0;
+            background-color: #155581;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            border: none;
+            font-size: 20px;
+            font-weight: 700;
+            width: 400px;
+            position: relative;
+            transition: all 150ms;
+            /* Ensure buttons have no default styles */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .button:hover {
+            background-color: #1a7cb7;
+        }
+
+        .button i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* Disabled Button Style */
+        .button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Upload Message */
+        #upload-message {
+            text-align: center;
+            width: 100%;
+            margin: 5px auto 0 auto;
+            font-weight: bold;
+            display: block;
+        }
+
+        /* Pie Chart */
+        #classPieChart {
+            display: block;
+            margin: 20px auto;
+            max-width: 500px; /* Adjusted to 500px */
+            max-height: 500px;
+        }
+
+        /* Image Grid */
+        #image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+
+        #image-grid img {
+            width: 40%;
+            margin: 10px 0;
+        }
+
+        /* Save Button */
+        .save-button {
+            transition: all 150ms;
+            position: relative;
+            margin: auto;
+            margin-top: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 20px;
+            color: #fff;
+            padding: 10px 0;
+            background-color: #155581;
+            text-align: center;
+            vertical-align: middle;
+            border: none;
+            margin-bottom: 10px;
+            width: 400px;
+        }
+
+        .save-button:hover {
+            background-color: #1a7cb7;
+        }
+
+        /* Loader */
+        .loader-wrapper {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #242f3f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            position: relative;
+            border: 4px solid #fff;
+            animation: loader 2s infinite ease;
+        }
+
+        .loader-inner {
+            vertical-align: top;
+            display: inline-block;
+            width: 100%;
+            background-color: #fff;
+            animation: loader-inner 2s infinite ease-in;
+        }
+
+        @keyframes loader {
+            0% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(180deg);
+            }
+            50% {
+                transform: rotate(180deg);
+            }
+            75% {
+                transform: rotate(360deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes loader-inner {
+            0% {
+                height: 0%;
+            }
+            25% {
+                height: 0%;
+            }
+            50% {
+                height: 100%;
+            }
+            75% {
+                height: 100%;
+            }
+            100% {
+                height: 0%;
+            }
+        }
+
+        /* Miscellaneous Styles */
+        .error-message {
+            color: red;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+        #uploaded-video {
+            display: none;
+            margin: auto;
+            border: 2px solid #000;
+            width: 20vw;
+            height: 20vh;
+            margin-top: 10px;
+        }
+
+        /* Remove default margins and paddings */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='klinikum_logo.png') }}" alt="Klinikum Logo" class="logo left-logo">
+        <h1 class="headline">
+            <span class="header-text">Nerve Detector</span>
+        </h1>
+        <img src="{{ url_for('static', filename='THA_logo.jpg') }}" alt="HSA Logo" class="logo right-logo">
+    </header>
+    <main class="main-content">
+        <div class="button-section">
+            <!-- Select File Button -->
+            <button id="select-file-button" class="button" onclick="triggerFileUpload()">
+                <i class="fas fa-file-upload"></i>
+                Select File
+            </button>
+            <input id="file-upload" type="file" accept="video/*" style="display: none;" onchange="handleFileUpload(event)" />
+
+            <!-- Filename Display -->
+            <p id="upload-message" style="display: none;"></p>
+
+            <!-- Start Prediction Button -->
+            <button id="predict-button" class="button" onclick="predict()" style="display: none;">
+                <i class="fas fa-play"></i>
+                Start Prediction
+            </button>
+        </div>
+
+        <!-- Pie Chart Canvas -->
+        <canvas id="classPieChart" width="500" height="500"></canvas>
+
+        <div id="image-grid"></div>
+    </main>
+
+    <!-- Inline JavaScript -->
+    <script>
+        // Declare the chart variable globally
+        let classPieChart;
+
+        $(document).ready(function() {
+            // Any initialization if needed
+        });
+
+        function triggerFileUpload() {
+            document.getElementById('file-upload').click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                $('#upload-message').text(`File Selected: "${file.name}"`).show();
+                $('#predict-button').show();
+
+                // Create FormData object to send the file
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // Send the file to the server
+                $.ajax({
+                    url: '/upload',
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log('File uploaded successfully.');
+                    },
+                    error: function(error) {
+                        console.error('Error uploading file:', error);
+                    }
+                });
+            }
+        }
+
+        function predict() {
+            // Disable the predict button to prevent multiple clicks
+            $('#predict-button').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+            // Start the prediction process
+            $.ajax({
+                url: '/predict', // Your prediction endpoint
+                method: 'GET',
+                success: function(count_classes) {
+                    // count_classes is an array of objects with 'name' and 'count'
+                    if (count_classes) {
+                        renderPieChart(count_classes);
+                    } else {
+                        console.error('No counts data in response.');
+                    }
+                    $('#predict-button').prop('disabled', false).html('<i class="fas fa-play"></i> Start Prediction');
+                },
+                error: function(error) {
+                    console.error('Error during prediction:', error);
+                    $('#predict-button').prop('disabled', false).html('<i class="fas fa-play"></i> Start Prediction');
+                }
+            });
+        }
+
+        function renderPieChart(count_classes) {
+            const labels = [];
+            const counts = [];
+
+            count_classes.forEach(function(item) {
+                labels.push(item.name);
+                counts.push(item.count);
+            });
+
+            const ctx = document.getElementById('classPieChart').getContext('2d');
+
+            // Destroy existing chart if it exists to prevent overlap
+            if (classPieChart) {
+                classPieChart.destroy();
+            }
+
+            classPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: generateColors(labels.length),
+                    }]
+                },
+                options: {
+                    responsive: false, // Ensure the chart uses the specified canvas size
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top', // Position the legend above the chart
+                            labels: {
+                                font: {
+                                    size: 16 // Set the legend text size to 16px
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = counts.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                }
+            });
+        }
+
+        function generateColors(numColors) {
+            const colors = [];
+            for (let i = 0; i < numColors; i++) {
+                // Generate colors using HSL for better distribution
+                colors.push(`hsl(${(i * 360 / numColors)}, 70%, 50%)`);
+            }
+            return colors;
+        }
+    </script>
+</body>
+</html>
