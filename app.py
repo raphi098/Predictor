@@ -26,7 +26,7 @@ def predict(video_file):
     # Dictionary to hold class counts
     class_counts = {
         "ulnua_krank": 0, "ulnoa_krank": 0, "medua_krank": 0, "medoa_krank": 0,
-        "ulnua": 0, "ulnoa": 0, "medua": 0, "medoa": 0, "no detection": 0
+        "ulnua": 0, "ulnoa": 0, "medua": 0, "medoa": 0
     }
     print(result_json_list)
 
@@ -60,10 +60,10 @@ def generate_pie_chart(class_counts):
     sizes = list(class_counts.values())
 
     # Custom color palette
-    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#c4e17f', '#c5c3c6', '#f9a7b0']
+    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99', '#c2c2f0', '#ffb3e6', '#c4e17f', '#c5c3c6']
     
     # Create explode to highlight one segment
-    explode = (0.1, 0, 0, 0, 0, 0, 0, 0, 0)  # Explode only the first slice
+    explode = (0.1, 0, 0, 0, 0, 0, 0, 0)  # Explode only the first slice
 
     fig, ax = plt.subplots()
 
